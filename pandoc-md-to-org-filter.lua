@@ -45,11 +45,16 @@ local function createPropertyDrawer()
   return propertiesDrawer
 end
 
+local function createHeader()
+  local fileName = PANDOC_STATE.input_files[1]:match("([^/]+)%.md$")
+  return pandoc.Header(1, pandoc.Str(fileName .. " " .. createTags()))
+end
+
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
-  local propDrawerPara = pandoc.Para({ pandoc.Str(createPropertyDrawer()) })
-  table.insert(doc.blocks, 1, propDrawerPara)
-  table.insert(doc.blocks, 2, pandoc.Str(createTags()))
+  local propDrawer = pandoc.Para({ pandoc.Str(createPropertyDrawer()) })
+  table.insert(doc.blocks, 1, createHeader())
+  table.insert(doc.blocks, 2, propDrawer)
 
   return doc
 end
