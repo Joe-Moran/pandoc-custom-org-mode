@@ -2,6 +2,7 @@ local pandoc = require("pandoc")
 
 local frontmatter = {}
 local tags = {}
+local lastWasDataview = false
 
 local function createTags()
   local tagStr = ":"
@@ -16,6 +17,18 @@ local function getFrontmatter(meta)
   if meta.tags then
     tags = meta.tags
   end
+end
+
+local function removeDataView(code)
+  for _, class in ipairs(code.classes) do
+    if class == "dataviewjs" then
+      lastWasDataview = true
+      return pandoc.Para("")
+    end
+  end
+  lastWasDataview = false
+
+  return code
 end
 
 local function formatMetadataValueToString(value)
@@ -48,6 +61,19 @@ end
 local function createHeader()
   local fileName = PANDOC_STATE.input_files[1]:match("([^/]+)%.md$")
   return pandoc.Header(1, pandoc.Str(fileName .. " " .. createTags()))
+end
+
+function CodeBlock(block)
+  return removeDataView(block)
+end
+
+function HorizontalRule()
+  if lastWasDataview then
+    lastWasDataview = false
+    return pandoc.Para("")
+  end
+  lastWasDataview = false
+  return pandoc.HorizontalRule()
 end
 
 function Pandoc(doc)
