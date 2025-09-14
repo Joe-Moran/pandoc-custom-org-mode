@@ -1,8 +1,17 @@
 local Header = {}
+
+local function kebabToCamelCase(str)
+	return str:gsub("%-(%w)", function(match)
+		return match:upper()
+	end)
+end
+
 local function createTags(tags)
 	local tagStr = ":"
 	for _, tag in pairs(tags) do
-		tagStr = tagStr .. pandoc.utils.stringify(tag) .. ":"
+		local tagText = pandoc.utils.stringify(tag)
+		tagText = kebabToCamelCase(tagText)
+		tagStr = tagStr .. tagText .. ":"
 	end
 	return tagStr
 end
