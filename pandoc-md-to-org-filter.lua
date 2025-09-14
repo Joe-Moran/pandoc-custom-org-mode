@@ -1,16 +1,13 @@
+package.path = package.path .. ";/Users/joemoran/Notes/dev/scripts/pandoc/?.lua"
+
 local pandoc = require("pandoc")
+local PropertyDrawer = require("property-drawer")
+local MyHeader = require("header")
+local MyCodeBlock = require("code-block")
 
 local frontmatter = {}
 local tags = {}
-local lastWasDataview = false
 
-local function createTags()
-  local tagStr = ":"
-  for _, tag in pairs(tags) do
-    tagStr = tagStr .. pandoc.utils.stringify(tag) .. ":"
-  end
-  return tagStr
-end
 
 local function getFrontmatter(meta)
   frontmatter = meta
@@ -19,67 +16,29 @@ local function getFrontmatter(meta)
   end
 end
 
-local function removeDataView(code)
-  for _, class in ipairs(code.classes) do
-    if class == "dataviewjs" then
-      lastWasDataview = true
-      return pandoc.Para("")
-    end
-  end
-  lastWasDataview = false
-
-  return code
-end
-
-local function formatMetadataValueToString(value)
-  if type(value) == "table" then
-    -- Handle pandoc MetaValue objects
-    return pandoc.utils.stringify(value)
-  else
-    return tostring(value)
-  end
-end
-
-local function kebabify(str)
-  str = str:lower()
-  str = str:gsub("%s+", "-")
-  str = str:gsub("[^%w%-]", "")
-  return str
-end
-
-local function createPropertyDrawer()
-  local propertiesDrawer = ":PROPERTIES:\n"
-  for name, value in pairs(frontmatter) do
-    if (name == "tags") then goto continue end
-    propertiesDrawer = propertiesDrawer .. ":" .. kebabify(name) .. ": " .. formatMetadataValueToString(value) .. "\n"
-    ::continue::
-  end
-  propertiesDrawer = propertiesDrawer .. ":END:\n"
-  return propertiesDrawer
-end
-
-local function createHeader()
-  local fileName = PANDOC_STATE.input_files[1]:match("([^/]+)%.md$")
-  return pandoc.Header(1, pandoc.Str(fileName .. " " .. createTags()))
-end
-
 function CodeBlock(block)
-  return removeDataView(block)
+  return MyCodeBlock.remove(block, "dataviewjs")
 end
 
 function HorizontalRule()
-  if lastWasDataview then
-    lastWasDataview = false
+  if MyCodeBlock.wasRemoved then
+    MyCodeBlock.wasRemoved = false
     return pandoc.Para("")
   end
-  lastWasDataview = false
+  MyCodeBlock.wasRemoved = false
   return pandoc.HorizontalRule()
+end
+
+-- Increase header levels by 1 to allow for a new top-level header to be generated
+function Header(elem)
+  elem.level = elem.level + 1
+  return elem
 end
 
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
-  local propDrawer = pandoc.Para({ pandoc.Str(createPropertyDrawer()) })
-  table.insert(doc.blocks, 1, createHeader())
+  local propDrawer = pandoc.Para({ pandoc.Str(PropertyDrawer.create(frontmatter)) })
+  table.insert(doc.blocks, 1, MyHeader.create(tags))
   table.insert(doc.blocks, 2, propDrawer)
 
   return doc
