@@ -35,6 +35,13 @@ function Header(elem)
   return elem
 end
 
+function Link(elem)
+  if elem.target:match("%%20") then
+    elem.target = elem.target:gsub("%%20", " ")
+  end
+  return elem
+end
+
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
   local propDrawer = pandoc.Para({ pandoc.Str(PropertyDrawer.create(frontmatter)) })
