@@ -50,6 +50,7 @@ end
 
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
+  table.insert(doc.blocks, 1, PropertyDrawer.create(frontmatter))
   table.insert(doc.blocks, 2, FileTags.create(frontmatter.tags))
   table.insert(doc.blocks, 3, Title.create())
 

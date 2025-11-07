@@ -1,9 +1,9 @@
 local PropertyDrawer = {}
 
-local function kebabify(str)
-	str = str:lower()
-	str = str:gsub("%s+", "-")
-	str = str:gsub("[^%w%-]", "")
+local function snakify(str)
+	local snake = "_"
+	str = str:gsub("%s+", "_")
+	str = str:gsub("[^%w%" .. snake .. "]", "")
 	return str
 end
 
@@ -20,14 +20,16 @@ end
 
 function PropertyDrawer.create(frontmatter)
 	local propertiesDrawer = ":PROPERTIES:\n"
+	local skipNames = { tags = true, alias = true }
+
 	for name, value in pairs(frontmatter) do
-		if (name == "tags") then goto continue end
+		if skipNames[name] then goto continue end
 		propertiesDrawer = propertiesDrawer ..
-			":" .. kebabify(name) .. ": " .. formatMetadataValueToString(value) .. "\n"
+			":" .. snakify(name:upper()) .. ": " .. formatMetadataValueToString(value) .. "\n"
 		::continue::
 	end
-	propertiesDrawer = propertiesDrawer .. ":END:\n"
-	return propertiesDrawer
+	propertiesDrawer = propertiesDrawer .. ":END:"
+	return pandoc.Str(propertiesDrawer)
 end
 
 return PropertyDrawer
