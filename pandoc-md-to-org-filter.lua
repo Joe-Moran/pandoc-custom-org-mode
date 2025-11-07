@@ -2,18 +2,15 @@ package.path = package.path .. ";/Users/joemoran/Notes/dev/scripts/pandoc/?.lua"
 
 local pandoc = require("pandoc")
 local PropertyDrawer = require("property-drawer")
-local MyHeader = require("header")
+local Title = require("title")
 local MyCodeBlock = require("code-block")
-
+local FileTags = require("tags")
+local Alias = require("alias")
 local frontmatter = {}
-local tags = {}
 
 
 local function getFrontmatter(meta)
   frontmatter = meta
-  if meta.tags then
-    tags = meta.tags
-  end
 end
 
 function CodeBlock(block)
@@ -29,8 +26,10 @@ function HorizontalRule()
   return pandoc.HorizontalRule()
 end
 
--- Increase header levels by 1 to allow for a new top-level header to be generated
+-- Decrease header levels by 1 to allow for a new top-level header to be generated
 function Header(elem)
+  elem.level = elem.level == 1 and elem.level or elem.level - 1
+
   return elem
 end
 
@@ -51,9 +50,8 @@ end
 
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
-  local propDrawer = pandoc.Para({ pandoc.Str(PropertyDrawer.create(frontmatter)) })
-  table.insert(doc.blocks, 1, MyHeader.create(tags))
-  table.insert(doc.blocks, 2, propDrawer)
+  table.insert(doc.blocks, 2, FileTags.create(frontmatter.tags))
+  table.insert(doc.blocks, 3, Title.create())
 
   return doc
 end

@@ -1,4 +1,4 @@
-local Header = {}
+local Tags = {}
 
 local function kebabToCamelCase(str)
 	return str:gsub("%-(%w)", function(match)
@@ -6,19 +6,14 @@ local function kebabToCamelCase(str)
 	end)
 end
 
-local function createTags(tags)
+function Tags.create(tags)
 	local tagStr = ":"
 	for _, tag in pairs(tags) do
 		local tagText = pandoc.utils.stringify(tag)
 		tagText = kebabToCamelCase(tagText)
 		tagStr = tagStr .. tagText .. ":"
 	end
-	return tagStr
+	return pandoc.RawInline('org', "#+FILETAGS: " .. tagStr)
 end
 
-function Header.create(tags)
-	local fileName = PANDOC_STATE.input_files[1]:match("([^/]+)%.md$")
-	return pandoc.Header(1, pandoc.Str(fileName .. " " .. createTags(tags)))
-end
-
-return Header
+return Tags
