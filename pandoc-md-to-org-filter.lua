@@ -31,7 +31,6 @@ end
 
 -- Increase header levels by 1 to allow for a new top-level header to be generated
 function Header(elem)
-  elem.level = elem.level + 1
   return elem
 end
 
