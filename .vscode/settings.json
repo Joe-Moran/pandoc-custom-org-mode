@@ -3,5 +3,9 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll": "true"
 	},
-	"editor.defaultFormatter": "sumneko.lua"
+	"editor.defaultFormatter": "sumneko.lua",
+	"Lua.diagnostics.globals": [
+		"PANDOC_STATE",
+		"pandoc"
+	]
 }

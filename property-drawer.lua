@@ -23,10 +23,10 @@ function PropertyDrawer.create(frontmatter)
 	local skipNames = { tags = true, alias = true }
 
 	for name, value in pairs(frontmatter) do
-		if skipNames[name] then goto continue end
-		propertiesDrawer = propertiesDrawer ..
-			":" .. snakify(name:upper()) .. ": " .. formatMetadataValueToString(value) .. "\n"
-		::continue::
+		if not skipNames[name] then
+			propertiesDrawer = propertiesDrawer ..
+				":" .. snakify(name:upper()) .. ": " .. formatMetadataValueToString(value) .. "\n"
+		end
 	end
 	propertiesDrawer = propertiesDrawer .. ":END:"
 	return pandoc.Str(propertiesDrawer)
