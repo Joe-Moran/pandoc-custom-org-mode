@@ -44,6 +44,11 @@ function Link(elem)
   return elem
 end
 
+ function Code(el)
+    -- Return org-mode inline code format using tildes
+    return pandoc.RawInline('org', '~' .. el.text .. '~')
+  end
+
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
   local propDrawer = pandoc.Para({ pandoc.Str(PropertyDrawer.create(frontmatter)) })
