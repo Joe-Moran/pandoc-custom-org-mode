@@ -43,16 +43,17 @@ function Link(elem)
   return elem
 end
 
- function Code(el)
-    -- Return org-mode inline code format using tildes
-    return pandoc.RawInline('org', '~' .. el.text .. '~')
-  end
+function Code(el)
+  -- Return org-mode inline code format using tildes
+  return pandoc.RawInline('org', '~' .. el.text .. '~')
+end
 
 function Pandoc(doc)
   doc:walk { Meta = getFrontmatter }
   table.insert(doc.blocks, 1, PropertyDrawer.create(frontmatter))
   table.insert(doc.blocks, 2, FileTags.create(frontmatter.tags))
   table.insert(doc.blocks, 3, Title.create())
+  table.insert(doc.blocks, 4, Alias.create(frontmatter.alias))
 
   return doc
 end
