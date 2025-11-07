@@ -38,6 +38,9 @@ function Link(elem)
   if elem.target:match("%%20") then
     elem.target = elem.target:gsub("%%20", " ")
   end
+  if elem.target:match("zotero") then
+    elem.target = elem.target:gsub("zotero", "shell:open zotero")
+  end
   return elem
 end
 
