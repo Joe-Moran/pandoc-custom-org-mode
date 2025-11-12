@@ -8,10 +8,22 @@ local FileTags = require("tags")
 local Alias = require("alias")
 local frontmatter = {}
 
+local function tableConcat(tableA, tableB)
+  for i = 1, #tableB do
+    tableA[#tableA + 1] = tableB[i]
+  end
+  return tableA
+end
 
 local function getFrontmatter(meta)
   frontmatter = meta
+  if meta.aliases ~= nil and #meta.aliases > 0 then
+    frontmatter.alias = tableConcat(frontmatter.alias, meta.aliases)
+    frontmatter.aliases = nil
+  end
 end
+
+
 
 function CodeBlock(block)
   return MyCodeBlock.remove(block, "dataviewjs")
@@ -53,7 +65,8 @@ function Pandoc(doc)
   table.insert(doc.blocks, 1, PropertyDrawer.create(frontmatter))
   table.insert(doc.blocks, 2, FileTags.create(frontmatter.tags))
   table.insert(doc.blocks, 3, Title.create())
-  table.insert(doc.blocks, 4, Alias.create(frontmatter.alias))
+  table.insert(doc.blocks, 4, pandoc.Para("\n"))
+  table.insert(doc.blocks, 5, Alias.create(frontmatter.alias))
 
   return doc
 end

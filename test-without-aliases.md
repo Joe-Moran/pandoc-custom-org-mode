@@ -3,8 +3,6 @@ alias:
   - alias1
   - alias2
   - alias3
-aliases:
-  - alias4
 tags:
   - test
   - testing-tag-1
